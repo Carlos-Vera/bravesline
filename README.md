@@ -1,25 +1,27 @@
 # bravesline
 
-A statusline for [Claude Code](https://claude.ai/code) that shows useful coding context directly in your terminal.
+Una statusline para [Claude Code](https://claude.ai/code) que te muestra lo que necesitas saber mientras codeas — sin salir del terminal.
 
 ```
-myapp (main ↑2 +3 ~1) | Claude Sonnet 4.6 | cntxto:[████████░░░░░░░░░░░░] 40% usado ses:5.2k(3.1ktok) | 5h:[████░░░░░░] 40% 7d:[██░░░░░░░░] 20%
+myapp ( main ↑2 ≡1 ●) | Claude Sonnet 4.6 | cntxto:[████████░░░░░░░░░░░░] 40% usado ses:5.2k(3.1ktok) | 5h:[████░░░░░░] 40% 7d:[██░░░░░░░░] 20%
 ```
 
-## Features
+## Qué muestra
 
-- **Git** — branch, ahead/behind remote, staged/unstaged/untracked counts, stash count
-- **Context window** — visual bar with color coding (cyan → yellow → red), usage %, session tokens, current context tokens
-- **Rate limits** — 5-hour and 7-day usage bars with reset countdown
-- **No Git** — shows `No Git` when outside a repository
-- **Multi-language** — labels adapt to your system locale: `en`, `es`/`ca`, `fr`, `pt`, `it`
+- **Git** — rama con icono ``, commits adelante/atrás del remote, stash, y un `●` verde si está limpio o rojo con el conteo si hay cambios sin commit
+- **Contexto** — barra visual con colores (cyan → amarillo → rojo), porcentaje de uso, tokens de la sesión y del contexto actual
+- **Rate limits** — barras para la ventana de 5h y 7 días, con cuenta regresiva hasta el reset
+- **Sin repo** — muestra `No Git` si el directorio no tiene git
+- **Idiomas** — etiquetas según tu locale: `en`, `es`/`ca`, `fr`, `pt`, `it`
 
-## Requirements
+## Requiere
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI
 - `bash`, `jq`, `bc`, `git`
 
-## Install
+## Instalación
+
+Una línea y listo:
 
 ```bash
 F=~/.claude/settings.json; [ -f "$F" ] || echo '{}' > "$F"; \
@@ -29,32 +31,32 @@ jq '.statusLine = {"type":"command","command":"bash ~/.claude/bravesline.sh","pa
   "$F" > /tmp/_bl.json && mv /tmp/_bl.json "$F"
 ```
 
-Restart Claude Code and the statusline will appear immediately.
+Reinicia Claude Code y aparece de inmediato.
 
-## What each section shows
+## Referencia de secciones
 
-| Section | Info |
+| Sección | Qué indica |
 |---|---|
-| `folder (branch)` | Current directory and git branch |
-| `↑N ↓N` | Commits ahead / behind remote |
-| `+N ~N ?N` | Staged / modified / untracked files |
-| `≡N` | Stash entries |
-| `ctx/cntxto:[bar] N%` | Context window usage |
-| `ses:Nk` | Total session tokens (input + output) |
-| `(Nktok)` | Tokens currently in context |
-| `5h:[bar]` | Rate limit usage for the 5-hour window |
-| `7d:[bar]` | Rate limit usage for the 7-day window |
-| `↺Xh Ym` | Time until rate limit resets |
+| `folder ( branch)` | Directorio actual y rama |
+| `↑N ↓N` | Commits adelante / atrás del remote |
+| `≡N` | Entradas en el stash |
+| `●` verde / `↑N ●` rojo | Limpio — o cuántos archivos tienen cambios sin commit |
+| `cntxto/ctx:[barra] N%` | Uso de la ventana de contexto |
+| `ses:Nk` | Tokens totales de la sesión (input + output) |
+| `(Nktok)` | Tokens en el contexto actual |
+| `5h:[barra]` | Uso del rate limit de 5 horas |
+| `7d:[barra]` | Uso del rate limit de 7 días |
+| `↺Xh Ym` | Tiempo hasta que se resetea el límite |
 
-## Color coding
+## Colores
 
-| Color | Meaning |
+| Color | Qué significa |
 |---|---|
-| Cyan / Green | Under 50% — all good |
-| Yellow | 50–79% — getting there |
-| Red | 80%+ — watch out |
+| Cyan / Verde | Bajo del 50% — sin preocupaciones |
+| Amarillo | Entre 50–79% — ojo |
+| Rojo | 80% o más — actúa |
 
 ---
 
-Developed for the community by [Carlos Vera](mailto:carlos@braveslab.com) · [BravesLab](https://braveslab.com)  
-*All glory to my Father, Jesus Christ*
+Hecho para la comunidad por [Carlos Vera](mailto:carlos@braveslab.com) · [BravesLab](https://braveslab.com)  
+*Toda la gloria a mi Padre, Jesucristo*
