@@ -50,6 +50,8 @@ input_tokens=$(echo "$input" | jq -r '
   (.context_window.current_usage.cache_creation_input_tokens // 0) +
   (.context_window.current_usage.cache_read_input_tokens // 0)
   | if . == 0 then empty else tostring end')
+total_input=$(echo "$input"  | jq -r '.context_window.total_input_tokens  // 0')
+total_output=$(echo "$input" | jq -r '.context_window.total_output_tokens // 0')
 session_tokens=$(echo "$input" | jq -r '
   ((.context_window.total_input_tokens // 0) + (.context_window.total_output_tokens // 0))
   | if . == 0 then empty else tostring end')
@@ -85,9 +87,9 @@ build_bar() {
   [ "$filled" -gt "$total" ] && filled=$total
   local empty=$(( total - filled ))
   local bar="" i=0
-  while [ $i -lt $filled ]; do bar="${bar}█"; i=$((i+1)); done
+  while [ $i -lt $filled ]; do bar="${bar}▰"; i=$((i+1)); done
   i=0
-  while [ $i -lt $empty  ]; do bar="${bar}░"; i=$((i+1)); done
+  while [ $i -lt $empty  ]; do bar="${bar}▱"; i=$((i+1)); done
   printf '%s' "$bar"
 }
 
@@ -142,32 +144,40 @@ if [ -n "$cwd" ]; then
     [ "${ahead:-0}"       -gt 0 ] && extras="${extras} ${_green}↑${ahead}${_reset}"
     [ "${behind:-0}"      -gt 0 ] && extras="${extras} ${_red}↓${behind}${_reset}"
     [ "${stash_count:-0}" -gt 0 ] && extras="${extras} ${_cyan}${L_STASH}${stash_count}${_reset}"
-    [ -n "$dirty" ] && extras="${extras} ${_red}●${_reset}" || extras="${extras} ${_green}●${_reset}"
+    if [ -n "$dirty" ]; then
+      dirty_count=$(printf '%s' "$dirty" | grep -c .)
+      branch_color=$_red
+      extras="${extras} ↑${dirty_count} ●"
+    else
+      branch_color=$_green
+      extras="${extras} ●"
+    fi
 
-    branch_part=" ${_yellow}(${branch}${_reset}${extras}${_yellow})${_reset}"
+    branch_part="${branch_color}${branch}${extras}${_reset}"
   else
-    branch_part=" ${_dim}No Git${_reset}"
+    branch_part="${_dim}No Git${_reset}"
   fi
 fi
 
 # ── Context window ────────────────────────────────────────────────────────────
 ctx_part=""
+sess_part=""
+tok_part=""
 if [ -n "$used" ]; then
   used_int=$(printf "%.0f" "$used")
   bar=$(build_bar "$used" 20)
   color=$(color_by_pct "$used_int")
+  ctx_part="${L_CTX}:${color}${bar}${_reset} ${used_int}%"
+fi
 
-  ctx_part="${L_CTX}:${color}[${bar}]${_reset}${used_int}% ${_dim}${L_USED}${_reset}"
+if [ -n "$session_tokens" ]; then
+  sess_fmt=$(fmt_k "$session_tokens")
+  sess_part="${_dim}${L_USED}${_reset} ${_green}${L_SESSION}:${sess_fmt}${_reset}"
+fi
 
-  if [ -n "$session_tokens" ]; then
-    sess_fmt=$(fmt_k "$session_tokens")
-    ctx_part="${ctx_part} ${_green}${L_SESSION}:${sess_fmt}${_reset}"
-  fi
-
-  if [ -n "$input_tokens" ]; then
-    tok_fmt=$(fmt_k "$input_tokens")
-    ctx_part="${ctx_part}${_dim}(${tok_fmt}${L_TOKENS})${_reset}"
-  fi
+if [ -n "$input_tokens" ]; then
+  tok_fmt=$(fmt_k "$input_tokens")
+  tok_part="${_dim}Total${_reset} ${tok_fmt} ${_dim}${L_TOKENS}${_reset}"
 fi
 
 # ── Rate limits ───────────────────────────────────────────────────────────────
@@ -179,7 +189,7 @@ if [ -n "$five_pct" ]; then
   five_color=$(color_by_pct "$five_int")
   reset_str=$(time_until "$five_reset")
   [ -n "$reset_str" ] && reset_label=" ${_dim}↺${reset_str}${_reset}" || reset_label=""
-  rate_part="${rate_part}5h:${five_color}[${five_bar}]${_reset}${five_int}%${reset_label}"
+  rate_part="${rate_part}5h:${five_color}${five_bar}${_reset} ${five_int}%${reset_label}"
 fi
 
 if [ -n "$week_pct" ]; then
@@ -192,12 +202,16 @@ if [ -n "$week_pct" ]; then
   reset_str=$(time_until "$week_reset")
   [ -n "$reset_str" ] && reset_label=" ${_dim}↺${reset_str}${_reset}" || reset_label=""
   [ -n "$rate_part" ] && rate_part="${rate_part} "
-  rate_part="${rate_part}7d:${week_color}[${week_bar}]${_reset}${week_int}%${reset_label}"
+  rate_part="${rate_part}7d:${week_color}${week_bar}${_reset} ${week_int}%${reset_label}"
 fi
 
 # ── Final output ──────────────────────────────────────────────────────────────
-SEP="${_dim} | ${_reset}"
-out="${_blue}${folder}${_reset}${branch_part}${SEP}${_magenta}${model}${_reset}"
+SEP="${_dim} ❯ ${_reset}"
+out="${_blue}${folder}${_reset}"
+[ -n "$branch_part" ] && out="${out}${SEP}${branch_part}"
+out="${out}${SEP}${_magenta}${model}${_reset}"
 [ -n "$ctx_part"  ] && out="${out}${SEP}${ctx_part}"
+[ -n "$sess_part" ] && out="${out}${SEP}${sess_part}"
+[ -n "$tok_part"  ] && out="${out}${SEP}${tok_part}"
 [ -n "$rate_part" ] && out="${out}${SEP}${rate_part}"
 printf "%s" "$out"
