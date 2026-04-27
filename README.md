@@ -3,7 +3,7 @@
 Una statusline para [Claude Code](https://claude.ai/code) que te muestra lo que necesitas saber mientras codeas — sin salir del terminal.
 
 ```
-myapp ( main ↑2 ≡1 ●) | Claude Sonnet 4.6 | cntxto:[████████░░░░░░░░░░░░] 40% usado ses:5.2k(3.1ktok) | 5h:[████░░░░░░] 40% 7d:[██░░░░░░░░] 20%
+MyApp ❯ main ↑1 ● ❯ Sonnet 4.6 ❯ ctx:▰▰▰▰▰▰▱▱▱▱▱▱▱▱▱▱▱▱▱▱ 30% ❯ used ses:87.8k ❯ Total 59.7k tok ❯ 5h:▰▰▰▰▰▰▰▰▰▰ 98% 7d:▰▰▰▱▱▱▱▱▱▱ 29% 
 ```
 
 ## Qué muestra
@@ -17,7 +17,21 @@ myapp ( main ↑2 ≡1 ●) | Claude Sonnet 4.6 | cntxto:[███████�
 ## Requiere
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI
+- Nerd Font instalada en tu terminal (para el icono de rama)
 - `bash`, `jq`, `bc`, `git`
+
+## Nerd Font
+
+Necesitas una Nerd Font para ver el icono de rama. Si ya tienes una configurada en tu terminal, ignora esto.
+
+**macOS (Homebrew):**
+```bash
+brew install --cask font-meslo-lg-nerd-font
+```
+
+Luego selecciona `MesloLGS Nerd Font` en las preferencias de tu terminal (iTerm2, Ghostty, Kitty, etc.).
+
+Otras opciones en [nerdfonts.com](https://www.nerdfonts.com/font-downloads) — cualquiera funciona.
 
 ## Instalación
 
@@ -37,15 +51,16 @@ Reinicia Claude Code y aparece de inmediato.
 
 | Sección | Qué indica |
 |---|---|
-| `folder ( branch)` | Directorio actual y rama |
+| `folder` | Directorio actual |
+| ` branch` | Rama con icono Nerd Font |
 | `↑N ↓N` | Commits adelante / atrás del remote |
 | `≡N` | Entradas en el stash |
 | `●` verde / `↑N ●` rojo | Limpio — o cuántos archivos tienen cambios sin commit |
-| `cntxto/ctx:[barra] N%` | Uso de la ventana de contexto |
+| `cntxto/ctx:barra N%` | Uso de la ventana de contexto |
 | `ses:Nk` | Tokens totales de la sesión (input + output) |
-| `(Nktok)` | Tokens en el contexto actual |
-| `5h:[barra]` | Uso del rate limit de 5 horas |
-| `7d:[barra]` | Uso del rate limit de 7 días |
+| `Total Nk tok` | Tokens del contexto actual |
+| `5h:barra` | Uso del rate limit de 5 horas |
+| `7d:barra` | Uso del rate limit de 7 días |
 | `↺Xh Ym` | Tiempo hasta que se resetea el límite |
 
 ## Colores
