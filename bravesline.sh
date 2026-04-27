@@ -134,20 +134,15 @@ if [ -n "$cwd" ]; then
     ahead=$(printf '%s' "$ab_line"  | grep -oE '\+[0-9]+' | tr -d '+')
     behind=$(printf '%s' "$ab_line" | grep -oE '\-[0-9]+'  | tr -d '-')
 
-    # Parse changes from porcelain=v2 output
-    staged=$(printf '%s' "$git_status" | awk '$1=="1" && substr($2,1,1)!="." {c++}
-                                              $1=="2"                          {c++} END{print c+0}')
-    unstaged=$(printf '%s' "$git_status" | awk '$1=="1" && substr($2,2,1)!="." {c++} END{print c+0}')
-    untracked=$(printf '%s' "$git_status" | awk 'substr($0,1,1)=="?" {c++} END{print c+0}')
+    # Dirty indicator
+    dirty=$(git -C "$cwd" --no-optional-locks status --porcelain 2>/dev/null)
     stash_count=$(git -C "$cwd" --no-optional-locks stash list 2>/dev/null | wc -l | tr -d ' ')
 
     extras=""
     [ "${ahead:-0}"       -gt 0 ] && extras="${extras} ${_green}↑${ahead}${_reset}"
     [ "${behind:-0}"      -gt 0 ] && extras="${extras} ${_red}↓${behind}${_reset}"
     [ "${stash_count:-0}" -gt 0 ] && extras="${extras} ${_cyan}${L_STASH}${stash_count}${_reset}"
-    [ "${staged:-0}"      -gt 0 ] && extras="${extras} ${_green}${L_STAGED}${staged}${_reset}"
-    [ "${unstaged:-0}"    -gt 0 ] && extras="${extras} ${_yellow}${L_MOD}${unstaged}${_reset}"
-    [ "${untracked:-0}"   -gt 0 ] && extras="${extras} ${_red}${L_NEW}${untracked}${_reset}"
+    [ -n "$dirty" ] && extras="${extras} ${_red}●${_reset}" || extras="${extras} ${_green}●${_reset}"
 
     branch_part=" ${_yellow}(${branch}${_reset}${extras}${_yellow})${_reset}"
   else
