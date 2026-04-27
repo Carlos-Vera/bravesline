@@ -50,8 +50,6 @@ input_tokens=$(echo "$input" | jq -r '
   (.context_window.current_usage.cache_creation_input_tokens // 0) +
   (.context_window.current_usage.cache_read_input_tokens // 0)
   | if . == 0 then empty else tostring end')
-total_input=$(echo "$input"  | jq -r '.context_window.total_input_tokens  // 0')
-total_output=$(echo "$input" | jq -r '.context_window.total_output_tokens // 0')
 session_tokens=$(echo "$input" | jq -r '
   ((.context_window.total_input_tokens // 0) + (.context_window.total_output_tokens // 0))
   | if . == 0 then empty else tostring end')
