@@ -11,6 +11,7 @@ MyApp ❯ main ↑1 ● ❯ Sonnet 4.6 ❯ ctx:▰▰▰▰▰▰▱▱▱▱▱
 - **Git** — rama con icono ``, commits adelante/atrás del remote, stash, y un `●` verde si está limpio o rojo con el conteo si hay cambios sin commit
 - **Contexto** — barra visual con colores (cyan → amarillo → rojo), porcentaje de uso, tokens de la sesión y del contexto actual
 - **Rate limits** — barras para la ventana de 5h y 7 días, con cuenta regresiva hasta el reset
+- **Responsive** — se adapta al ancho real del terminal: si todo cabe en una línea lo muestra así; si no, distribuye las secciones en varias líneas sin perder ninguna
 - **Sin repo** — muestra `No Git` si el directorio no tiene git
 - **Idiomas** — etiquetas según tu locale: `en`, `es`/`ca`, `fr`, `pt`, `it`
 
