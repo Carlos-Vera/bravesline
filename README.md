@@ -5,7 +5,6 @@ Una statusline para [Claude Code](https://claude.ai/code) que te muestra lo que 
 ```
 MyApp ❯ main ↑1 ● ❯ Sonnet 4.6 ❯ ctx:▰▰▰▰▰▰▱▱▱▱▱▱▱▱▱▱▱▱▱▱ 30% ❯ used ses:87.8k ❯ Total 59.7k tok ❯ 5h:▰▰▰▰▰▰▰▰▰▰ 98% 7d:▰▰▰▱▱▱▱▱▱▱ 29% 
 ```
-Sí funciona en tu editor de código favorito, siempre que abras una termina allí.
 
 ## Qué muestra
 
@@ -31,7 +30,7 @@ Necesitas una Nerd Font para ver el icono de rama. Si ya tienes una configurada 
 brew install --cask font-meslo-lg-nerd-font
 ```
 
-Luego selecciona `MesloLGS Nerd Font` en las preferencias de tu terminal (iTerm2, Ghostty, Kitty, etc.).
+Luego selecciona `MesloLGS Nerd Font` en las preferencias de tu terminal (Cursor, iTerm2, Ghostty, Kitty, etc.).
 
 Otras opciones en [nerdfonts.com](https://www.nerdfonts.com/font-downloads) — cualquiera funciona.
 
