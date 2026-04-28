@@ -30,7 +30,7 @@ Necesitas una Nerd Font para ver el icono de rama. Si ya tienes una configurada 
 brew install --cask font-meslo-lg-nerd-font
 ```
 
-Luego selecciona `MesloLGS Nerd Font` en las preferencias de tu terminal (iTerm2, Ghostty, Kitty, etc.).
+Luego selecciona `MesloLGS Nerd Font` en las preferencias de tu terminal (Cursor, iTerm2, Ghostty, Kitty, etc.).
 
 Otras opciones en [nerdfonts.com](https://www.nerdfonts.com/font-downloads) — cualquiera funciona.
 
