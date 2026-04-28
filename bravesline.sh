@@ -205,11 +205,40 @@ fi
 
 # ── Final output ──────────────────────────────────────────────────────────────
 SEP="${_dim} ❯ ${_reset}"
-out="${_blue}${folder}${_reset}"
-[ -n "$branch_part" ] && out="${out}${SEP}${branch_part}"
-out="${out}${SEP}${_magenta}${model}${_reset}"
-[ -n "$ctx_part"  ] && out="${out}${SEP}${ctx_part}"
-[ -n "$sess_part" ] && out="${out}${SEP}${sess_part}"
-[ -n "$tok_part"  ] && out="${out}${SEP}${tok_part}"
-[ -n "$rate_part" ] && out="${out}${SEP}${rate_part}"
-printf "%s" "$out"
+
+# Visible length: strip ANSI codes and count characters (UTF-8 aware)
+_vlen() { printf '%s' "$1" | sed $'s/\033\\[[0-9;]*m//g' | wc -m | tr -d ' \t\n'; }
+
+# Terminal width — stty reads from the actual TTY even in subprocesses
+_cols=$(stty size </dev/tty 2>/dev/null | awk '{print $2}')
+[ -z "$_cols" ] || [ "$_cols" -le 0 ] && _cols=$(tput cols 2>/dev/null)
+[ -z "$_cols" ] || [ "$_cols" -le 0 ] && _cols=9999
+
+# Multi-line builder: wraps to a new line when a section doesn't fit
+_lines=("${_blue}${folder}${_reset}${SEP}${_magenta}${model}${_reset}")
+_cur=0
+
+_add_section() {
+  local _sec="$1"
+  local _candidate="${_lines[$_cur]}${SEP}${_sec}"
+  if [ "$(_vlen "$_candidate")" -le "$_cols" ]; then
+    _lines[$_cur]="$_candidate"
+  else
+    _cur=$((_cur + 1))
+    _lines[$_cur]="$_sec"
+  fi
+}
+
+[ -n "$branch_part" ] && _add_section "$branch_part"
+[ -n "$ctx_part"    ] && _add_section "$ctx_part"
+[ -n "$rate_part"   ] && _add_section "$rate_part"
+[ -n "$sess_part"   ] && _add_section "$sess_part"
+[ -n "$tok_part"    ] && _add_section "$tok_part"
+
+# Output all lines joined with newline (no trailing newline on last)
+_out=""
+for _i in "${!_lines[@]}"; do
+  [ "$_i" -gt 0 ] && _out="${_out}"$'\n'
+  _out="${_out}${_lines[$_i]}"
+done
+printf "%s" "$_out"
