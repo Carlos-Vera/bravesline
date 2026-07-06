@@ -5,7 +5,7 @@ Una statusline para [Claude Code](https://claude.ai/code) que te muestra lo que 
 ```
 MyApp ❯ Fable 5 30% ❯ main ↑1 ● ❯ ctx:▰▰▰▰▰▰▱▱▱▱▱▱▱▱▱▱▱▱▱▱ 30% ❯ 5h:▰▰▰▰▰▰▰▰▰▰ 98% 7d:▰▰▰▱▱▱▱▱▱▱ 29% ❯ used ses:87.8k ❯ Total 59.7k tok ❯ tu@email.com
 ```
-Sí funciona en tu editor de código favorito, siempre que abras una termina allí.
+Sí funciona en tu editor de código favorito, siempre que abras una terminal allí.
 
 ## Qué muestra
 
@@ -55,11 +55,11 @@ Reinicia Claude Code y aparece de inmediato.
 | Sección | Qué indica |
 |---|---|
 | `folder` | Directorio actual |
+| `modelo N%` | Modelo activo y % de uso de la ventana de contexto |
 | ` branch` | Rama con icono Nerd Font |
 | `↑N ↓N` | Commits adelante / atrás del remote |
 | `≡N` | Entradas en el stash |
 | `●` verde / `↑N ●` rojo | Limpio — o cuántos archivos tienen cambios sin commit |
-| `N%` junto al modelo | Uso de la ventana de contexto |
 | `cntxto/ctx:barra N%` | Barra visual del contexto con porcentaje |
 | `ses:Nk` | Tokens totales de la sesión (input + output) |
 | `Total Nk tok` | Tokens del contexto actual |
