@@ -3,15 +3,16 @@
 Una statusline para [Claude Code](https://claude.ai/code) que te muestra lo que necesitas saber mientras codeas — sin salir del terminal.
 
 ```
-MyApp ❯ main ↑1 ● ❯ Sonnet 4.6 ❯ ctx:▰▰▰▰▰▰▱▱▱▱▱▱▱▱▱▱▱▱▱▱ 30% ❯ used ses:87.8k ❯ Total 59.7k tok ❯ 5h:▰▰▰▰▰▰▰▰▰▰ 98% 7d:▰▰▰▱▱▱▱▱▱▱ 29% 
+MyApp ❯ Sonnet 4.6 30% ❯ main ↑1 ● ❯ 5h:▰▰▰▰▰▰▰▰▰▰ 98% 7d:▰▰▰▱▱▱▱▱▱▱ 29% ❯ used ses:87.8k ❯ Total 59.7k tok ❯ tu@email.com
 ```
 Sí funciona en tu editor de código favorito, siempre que abras una termina allí.
 
 ## Qué muestra
 
 - **Git** — rama con icono ``, commits adelante/atrás del remote, stash, y un `●` verde si está limpio o rojo con el conteo si hay cambios sin commit
-- **Contexto** — barra visual con colores (cyan → amarillo → rojo), porcentaje de uso, tokens de la sesión y del contexto actual
+- **Contexto** — porcentaje de uso junto al modelo, coloreado (cyan → amarillo → rojo), más tokens de la sesión y del contexto actual
 - **Rate limits** — barras para la ventana de 5h y 7 días, con cuenta regresiva hasta el reset
+- **Cuenta** — email de la cuenta claude.ai activa, al final de la barra. Respeta `CLAUDE_CONFIG_DIR` para setups multi-cuenta; si no está definido lee `~/.claude.json`
 - **Responsive** — se adapta al ancho real del terminal: si todo cabe en una línea lo muestra así; si no, distribuye las secciones en varias líneas sin perder ninguna
 - **Sin repo** — muestra `No Git` si el directorio no tiene git
 - **Idiomas** — etiquetas según tu locale: `en`, `es`/`ca`, `fr`, `pt`, `it`
@@ -58,12 +59,13 @@ Reinicia Claude Code y aparece de inmediato.
 | `↑N ↓N` | Commits adelante / atrás del remote |
 | `≡N` | Entradas en el stash |
 | `●` verde / `↑N ●` rojo | Limpio — o cuántos archivos tienen cambios sin commit |
-| `cntxto/ctx:barra N%` | Uso de la ventana de contexto |
+| `N%` junto al modelo | Uso de la ventana de contexto |
 | `ses:Nk` | Tokens totales de la sesión (input + output) |
 | `Total Nk tok` | Tokens del contexto actual |
 | `5h:barra` | Uso del rate limit de 5 horas |
 | `7d:barra` | Uso del rate limit de 7 días |
 | `↺Xh Ym` | Tiempo hasta que se resetea el límite |
+| `email` | Cuenta claude.ai activa |
 
 ## Colores
 

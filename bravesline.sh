@@ -30,11 +30,11 @@ export LANG=en_US.UTF-8
 
 # ── Localized labels ──────────────────────────────────────────────────────────
 case "$_user_lang" in
-  es|ca) L_CTX="cntxto" L_USED="usado"  L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
-  fr)    L_CTX="ctx"    L_USED="util."  L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
-  pt)    L_CTX="ctx"    L_USED="usado"  L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
-  it)    L_CTX="ctx"    L_USED="usato"  L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
-  *)     L_CTX="ctx"    L_USED="used"   L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
+  es|ca) L_USED="usado" L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
+  fr)    L_USED="util." L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
+  pt)    L_USED="usado" L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
+  it)    L_USED="usato" L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
+  *)     L_USED="used"  L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
 esac
 
 # ── Parse JSON input ──────────────────────────────────────────────────────────
@@ -43,6 +43,10 @@ input=$(cat)
 cwd=$(echo "$input"   | jq -r '.workspace.current_dir // .cwd // empty')
 folder=$(basename "${cwd:-.}")
 model=$(echo "$input" | jq -r '.model.display_name // .model.id // "unknown"')
+
+# Account email is not in the statusline payload; read it from the config file.
+# CLAUDE_CONFIG_DIR (per-account setups) takes precedence over the global one.
+account=$(jq -r '.oauthAccount.emailAddress // empty' "${CLAUDE_CONFIG_DIR:-$HOME}/.claude.json" 2>/dev/null)
 
 used=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
 input_tokens=$(echo "$input" | jq -r '
@@ -56,8 +60,8 @@ session_tokens=$(echo "$input" | jq -r '
 
 five_pct=$(echo "$input"   | jq -r '.rate_limits.five_hour.used_percentage  // empty')
 week_pct=$(echo "$input"   | jq -r '.rate_limits.seven_day.used_percentage  // empty')
-five_reset=$(echo "$input" | jq -r '.rate_limits.five_hour.reset_at         // empty')
-week_reset=$(echo "$input" | jq -r '.rate_limits.seven_day.reset_at         // empty')
+five_reset=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // .rate_limits.five_hour.reset_at // empty')
+week_reset=$(echo "$input" | jq -r '.rate_limits.seven_day.resets_at // .rate_limits.seven_day.reset_at // empty')
 
 # ── Colors ────────────────────────────────────────────────────────────────────
 _blue=$'\033[0;34m'
@@ -99,17 +103,20 @@ fmt_k() {
   fi
 }
 
-# Returns "Xh Ym" until an ISO-8601 UTC timestamp, empty if not parseable/past
+# Returns "Xh Ym" until a Unix epoch or ISO-8601 UTC timestamp, empty if not parseable/past
 time_until() {
   local ts="$1"
   [ -z "$ts" ] && return
-  # Validate strict ISO-8601 UTC format before passing to date (avoids GNU date command injection)
-  [[ "$ts" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]] || return
   local now target diff
   now=$(date +%s)
-  # Try macOS date first, then GNU date
-  target=$(date -j -f "%Y-%m-%dT%H:%M:%SZ" "$ts" +%s 2>/dev/null) \
-    || target=$(date -d "$ts" +%s 2>/dev/null)
+  if [[ "$ts" =~ ^[0-9]+$ ]]; then
+    target="$ts"
+  elif [[ "$ts" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]]; then
+    # Strict format validated above avoids GNU date command injection
+    # Try macOS date first, then GNU date
+    target=$(date -j -f "%Y-%m-%dT%H:%M:%SZ" "$ts" +%s 2>/dev/null) \
+      || target=$(date -d "$ts" +%s 2>/dev/null)
+  fi
   [ -z "$target" ] && return
   diff=$(( target - now ))
   [ "$diff" -le 0 ] && return
@@ -158,14 +165,13 @@ if [ -n "$cwd" ]; then
 fi
 
 # ── Context window ────────────────────────────────────────────────────────────
-ctx_part=""
+# Context usage renders as a plain percentage next to the model name, no bar
+model_pct=""
 sess_part=""
 tok_part=""
 if [ -n "$used" ]; then
   used_int=$(printf "%.0f" "$used")
-  bar=$(build_bar "$used" 20)
-  color=$(color_by_pct "$used_int")
-  ctx_part="${L_CTX}:${color}${bar}${_reset} ${used_int}%"
+  model_pct=" $(color_by_pct "$used_int")${used_int}%${_reset}"
 fi
 
 if [ -n "$session_tokens" ]; then
@@ -215,7 +221,7 @@ _cols=$(stty size </dev/tty 2>/dev/null | awk '{print $2}')
 [ -z "$_cols" ] || [ "$_cols" -le 0 ] && _cols=9999
 
 # Multi-line builder: wraps to a new line when a section doesn't fit
-_lines=("${_blue}${folder}${_reset}${SEP}${_magenta}${model}${_reset}")
+_lines=("${_blue}${folder}${_reset}${SEP}${_magenta}${model}${_reset}${model_pct}")
 _cur=0
 
 _add_section() {
@@ -230,10 +236,10 @@ _add_section() {
 }
 
 [ -n "$branch_part" ] && _add_section "$branch_part"
-[ -n "$ctx_part"    ] && _add_section "$ctx_part"
 [ -n "$rate_part"   ] && _add_section "$rate_part"
 [ -n "$sess_part"   ] && _add_section "$sess_part"
 [ -n "$tok_part"    ] && _add_section "$tok_part"
+[ -n "$account"     ] && _add_section "${_dim}${account}${_reset}"
 
 # Output all lines joined with newline (no trailing newline on last)
 _out=""
