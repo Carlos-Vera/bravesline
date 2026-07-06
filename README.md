@@ -3,14 +3,14 @@
 Una statusline para [Claude Code](https://claude.ai/code) que te muestra lo que necesitas saber mientras codeas — sin salir del terminal.
 
 ```
-MyApp ❯ Fable 5 30% ❯ main ↑1 ● ❯ 5h:▰▰▰▰▰▰▰▰▰▰ 98% 7d:▰▰▰▱▱▱▱▱▱▱ 29% ❯ used ses:87.8k ❯ Total 59.7k tok ❯ tu@email.com
+MyApp ❯ Fable 5 30% ❯ main ↑1 ● ❯ ctx:▰▰▰▰▰▰▱▱▱▱▱▱▱▱▱▱▱▱▱▱ ❯ 5h:▰▰▰▰▰▰▰▰▰▰ 98% 7d:▰▰▰▱▱▱▱▱▱▱ 29% ❯ used ses:87.8k ❯ Total 59.7k tok ❯ tu@email.com
 ```
 Sí funciona en tu editor de código favorito, siempre que abras una termina allí.
 
 ## Qué muestra
 
 - **Git** — rama con icono ``, commits adelante/atrás del remote, stash, y un `●` verde si está limpio o rojo con el conteo si hay cambios sin commit
-- **Contexto** — porcentaje de uso junto al modelo, coloreado (cyan → amarillo → rojo), más tokens de la sesión y del contexto actual
+- **Contexto** — porcentaje de uso junto al modelo y barra visual, coloreados (cyan → amarillo → rojo), más tokens de la sesión y del contexto actual
 - **Rate limits** — barras para la ventana de 5h y 7 días, con cuenta regresiva hasta el reset
 - **Cuenta** — email de la cuenta claude.ai activa, al final de la barra. Respeta `CLAUDE_CONFIG_DIR` para setups multi-cuenta; si no está definido lee `~/.claude.json`
 - **Responsive** — se adapta al ancho real del terminal: si todo cabe en una línea lo muestra así; si no, distribuye las secciones en varias líneas sin perder ninguna
@@ -60,6 +60,7 @@ Reinicia Claude Code y aparece de inmediato.
 | `≡N` | Entradas en el stash |
 | `●` verde / `↑N ●` rojo | Limpio — o cuántos archivos tienen cambios sin commit |
 | `N%` junto al modelo | Uso de la ventana de contexto |
+| `cntxto/ctx:barra` | Barra visual del contexto |
 | `ses:Nk` | Tokens totales de la sesión (input + output) |
 | `Total Nk tok` | Tokens del contexto actual |
 | `5h:barra` | Uso del rate limit de 5 horas |

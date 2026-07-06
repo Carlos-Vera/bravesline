@@ -30,11 +30,11 @@ export LANG=en_US.UTF-8
 
 # ── Localized labels ──────────────────────────────────────────────────────────
 case "$_user_lang" in
-  es|ca) L_USED="usado" L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
-  fr)    L_USED="util." L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
-  pt)    L_USED="usado" L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
-  it)    L_USED="usato" L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
-  *)     L_USED="used"  L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
+  es|ca) L_CTX="cntxto" L_USED="usado"  L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
+  fr)    L_CTX="ctx"    L_USED="util."  L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
+  pt)    L_CTX="ctx"    L_USED="usado"  L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
+  it)    L_CTX="ctx"    L_USED="usato"  L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
+  *)     L_CTX="ctx"    L_USED="used"   L_SESSION="ses" L_TOKENS="tok" L_STASH="≡" L_STAGED="+" L_MOD="~" L_NEW="?" ;;
 esac
 
 # ── Parse JSON input ──────────────────────────────────────────────────────────
@@ -165,13 +165,16 @@ if [ -n "$cwd" ]; then
 fi
 
 # ── Context window ────────────────────────────────────────────────────────────
-# Context usage renders as a plain percentage next to the model name, no bar
+# Context usage: percentage next to the model name, visual bar as its own section
 model_pct=""
+ctx_part=""
 sess_part=""
 tok_part=""
 if [ -n "$used" ]; then
   used_int=$(printf "%.0f" "$used")
-  model_pct=" $(color_by_pct "$used_int")${used_int}%${_reset}"
+  color=$(color_by_pct "$used_int")
+  model_pct=" ${color}${used_int}%${_reset}"
+  ctx_part="${L_CTX}:${color}$(build_bar "$used" 20)${_reset}"
 fi
 
 if [ -n "$session_tokens" ]; then
@@ -236,6 +239,7 @@ _add_section() {
 }
 
 [ -n "$branch_part" ] && _add_section "$branch_part"
+[ -n "$ctx_part"    ] && _add_section "$ctx_part"
 [ -n "$rate_part"   ] && _add_section "$rate_part"
 [ -n "$sess_part"   ] && _add_section "$sess_part"
 [ -n "$tok_part"    ] && _add_section "$tok_part"
