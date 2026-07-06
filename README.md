@@ -3,7 +3,7 @@
 Una statusline para [Claude Code](https://claude.ai/code) que te muestra lo que necesitas saber mientras codeas — sin salir del terminal.
 
 ```
-MyApp ❯ Fable 5 30% ❯ main ↑1 ● ❯ ctx:▰▰▰▰▰▰▱▱▱▱▱▱▱▱▱▱▱▱▱▱ ❯ 5h:▰▰▰▰▰▰▰▰▰▰ 98% 7d:▰▰▰▱▱▱▱▱▱▱ 29% ❯ used ses:87.8k ❯ Total 59.7k tok ❯ tu@email.com
+MyApp ❯ Fable 5 30% ❯ main ↑1 ● ❯ ctx:▰▰▰▰▰▰▱▱▱▱▱▱▱▱▱▱▱▱▱▱ 30% ❯ 5h:▰▰▰▰▰▰▰▰▰▰ 98% 7d:▰▰▰▱▱▱▱▱▱▱ 29% ❯ used ses:87.8k ❯ Total 59.7k tok ❯ tu@email.com
 ```
 Sí funciona en tu editor de código favorito, siempre que abras una termina allí.
 
@@ -60,7 +60,7 @@ Reinicia Claude Code y aparece de inmediato.
 | `≡N` | Entradas en el stash |
 | `●` verde / `↑N ●` rojo | Limpio — o cuántos archivos tienen cambios sin commit |
 | `N%` junto al modelo | Uso de la ventana de contexto |
-| `cntxto/ctx:barra` | Barra visual del contexto |
+| `cntxto/ctx:barra N%` | Barra visual del contexto con porcentaje |
 | `ses:Nk` | Tokens totales de la sesión (input + output) |
 | `Total Nk tok` | Tokens del contexto actual |
 | `5h:barra` | Uso del rate limit de 5 horas |

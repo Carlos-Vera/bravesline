@@ -174,7 +174,7 @@ if [ -n "$used" ]; then
   used_int=$(printf "%.0f" "$used")
   color=$(color_by_pct "$used_int")
   model_pct=" ${color}${used_int}%${_reset}"
-  ctx_part="${L_CTX}:${color}$(build_bar "$used" 20)${_reset}"
+  ctx_part="${L_CTX}:${color}$(build_bar "$used" 20)${_reset} ${used_int}%"
 fi
 
 if [ -n "$session_tokens" ]; then
