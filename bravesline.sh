@@ -49,6 +49,15 @@ model=$(echo "$input" | jq -r '.model.display_name // .model.id // "unknown"')
 account=$(jq -r '.oauthAccount.emailAddress // empty' "${CLAUDE_CONFIG_DIR:-$HOME}/.claude.json" 2>/dev/null)
 
 used=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
+
+# Hand the exact percentage to braves-skills' context checkpoint. Claude Code
+# passes context_window ONLY to the statusline, never to hook payloads, so this
+# is the one place that can. Without it the hook has to guess a window size.
+sid=$(echo "$input" | jq -r '.session_id // empty')
+if [ -n "$sid" ] && [ -n "$used" ]; then
+  { mkdir -p "$HOME/.claude/braves-ctx" &&
+    printf '%s\n' "$used" > "$HOME/.claude/braves-ctx/${sid##*/}.pct"; } 2>/dev/null || true
+fi
 input_tokens=$(echo "$input" | jq -r '
   (.context_window.current_usage.input_tokens // 0) +
   (.context_window.current_usage.cache_creation_input_tokens // 0) +
@@ -72,6 +81,8 @@ _green=$'\033[0;32m'
 _red=$'\033[0;31m'
 _dim=$'\033[2m'
 _reset=$'\033[0m'
+# 256-colour purple, not truecolor: Terminal.app degrades truecolor badly.
+_gemini=$'\033[38;5;141m'
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 color_by_pct() {
@@ -212,6 +223,24 @@ if [ -n "$week_pct" ]; then
   rate_part="${rate_part}7d:${week_color}${week_bar}${_reset} ${week_int}%${reset_label}"
 fi
 
+# ── Gemini dispatch (braves-gemini) ───────────────────────────────────────────
+# What a live Gemini run is doing right now, so watching it costs nobody a
+# tool call. The wrapper prints "<state>\t<text>" while a dispatch is running
+# in this project and nothing at all the rest of the time. The line is always
+# Gemini's own brand colour — not red, the token bar already shows the spend —
+# except when the run has gone quiet: yellow then means "this is stuck."
+gem_part=""
+_gem_script="$HOME/.claude/skills/braves-skills/scripts/gemini-dispatch.sh"
+if [ -n "$cwd" ] && [ -f "$_gem_script" ]; then
+  gem_raw=$(sh "$_gem_script" --status "$cwd" 2>/dev/null || true)
+  if [ -n "$gem_raw" ]; then
+    IFS=$'\t' read -r gem_state gem_pct gem_text <<< "$gem_raw"
+    gem_color=$_gemini
+    [ "$gem_state" = "slow" ] && gem_color=$_yellow
+    gem_part="${gem_color}✦ gemini${_reset} ${gem_color}${gem_text}${_reset}"
+  fi
+fi
+
 # ── Final output ──────────────────────────────────────────────────────────────
 SEP="${_dim} ❯ ${_reset}"
 
@@ -244,6 +273,14 @@ _add_section() {
 [ -n "$sess_part"   ] && _add_section "$sess_part"
 [ -n "$tok_part"    ] && _add_section "$tok_part"
 [ -n "$account"     ] && _add_section "${_dim}${account}${_reset}"
+
+# A live Gemini dispatch gets a line of its own: it comes and goes on its own
+# schedule, and threading it through the sections above rearranges the bar
+# every time it appears.
+if [ -n "$gem_part" ]; then
+  _cur=$((_cur + 1))
+  _lines[$_cur]="$gem_part"
+fi
 
 # Output all lines joined with newline (no trailing newline on last)
 _out=""

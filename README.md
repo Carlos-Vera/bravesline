@@ -11,6 +11,8 @@ Sí funciona en tu editor de código favorito, siempre que abras una terminal al
 
 - **Git** — rama con icono ``, commits adelante/atrás del remote, stash, y un `●` verde si está limpio o rojo con el conteo si hay cambios sin commit
 - **Contexto** — porcentaje de uso junto al modelo y barra visual, coloreados (cyan → amarillo → rojo), más tokens de la sesión y del contexto actual
+- **Gemini** — cuando delegas trabajo a Gemini con [braves-skills](https://github.com/Carlos-Vera/braves-skills), lo ves avanzar en su propia línea: modelo, paso, qué está tocando ahora mismo y cuánto contexto lleva ocupado. Aparece sola cuando hay un despacho vivo y se va cuando termina
+- **Checkpoint de contexto** — si usas braves-skills, la barra le pasa el porcentaje real de contexto para que te avise de guardar en el momento justo, en vez de adivinarlo
 - **Rate limits** — barras para la ventana de 5h y 7 días, con cuenta regresiva hasta el reset
 - **Cuenta** — email de la cuenta claude.ai activa, al final de la barra. Respeta `CLAUDE_CONFIG_DIR` para setups multi-cuenta; si no está definido lee `~/.claude.json`
 - **Responsive** — se adapta al ancho real del terminal: si todo cabe en una línea lo muestra así; si no, distribuye las secciones en varias líneas sin perder ninguna
@@ -66,6 +68,7 @@ Reinicia Claude Code y aparece de inmediato.
 | `5h:barra` | Uso del rate limit de 5 horas |
 | `7d:barra` | Uso del rate limit de 7 días |
 | `↺Xh Ym` | Tiempo hasta que se resetea el límite |
+| `✦ gemini …` | Despacho de Gemini en curso: modelo, paso, herramienta y contexto ocupado. Va en su propia línea |
 | `email` | Cuenta claude.ai activa |
 
 ## Colores
